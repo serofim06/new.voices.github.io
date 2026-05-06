@@ -293,39 +293,20 @@ body::before {
     100% { transform: scale(1); }
 }
 
-/* ========== 18+ РАЗМЫТИЕ НА КАРТОЧКЕ ========== */
-.song-card.adult .song-card-preview {
-    position: relative;
-    overflow: hidden;
-}
-
-.song-card.adult .song-card-preview::before {
-    content: '';
+/* ========== ЗНАЧОК 18+ НА КАРТОЧКЕ ========== */
+.adult-badge-card {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: inherit;
-    filter: blur(4px);
-    z-index: 1;
-}
-
-.adult-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
+    bottom: 10px;
+    right: 12px;
+    background: rgba(207, 102, 121, 0.15);
+    border: 1px solid var(--danger);
     color: var(--danger);
-    font-weight: bold;
-    font-size: 1.2rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    pointer-events: none;
     z-index: 2;
-    pointer-events: none; /* чтобы клик проходил сквозь плашку на карточку */
 }
 
 /* Значок в детальном просмотре */
