@@ -698,16 +698,13 @@ async function renderSongs() {
         const isAdult = containsAdultContent(song.text);
 
         return `
-        <div class="song-card ${isAdult ? 'adult' : ''}" data-id="${song.id}">
+        <div class="song-card" data-id="${song.id}" style="position:relative;">
             <div class="song-card-header">
                 <span class="song-card-title">${escapeHTML(song.title)}</span>
                 <span class="song-card-date">${createdAt}</span>
             </div>
             <span class="song-card-author">👤 ${escapeHTML(song.author)}</span>
-            <div class="song-card-preview">
-                ${escapeHTML(preview)}
-                ${isAdult ? '<div class="adult-overlay">🔞 18+</div>' : ''}
-            </div>
+            <div class="song-card-preview">${escapeHTML(preview)}</div>
             <div class="song-card-footer">
                 <div class="stats">
                     <span>❤️ ${song.likes || 0}</span>
@@ -716,6 +713,7 @@ async function renderSongs() {
                 </div>
                 ${isAdmin() ? `<button class="btn btn-danger btn-sm btn-delete-card" data-id="${song.id}">🗑️</button>` : ''}
             </div>
+            ${isAdult ? '<span class="adult-badge-card">🔞 18+</span>' : ''}
         </div>`;
     }).join('');
 
@@ -872,22 +870,18 @@ async function openDetailModal(songId) {
         || song.author === currentUser.displayName
         || song.author === currentUser.email
     );
-    
-    // Увеличиваем просмотры только если:
-    // 1. Пользователь не автор стиха
-    // 2. Этот visitorKey ещё не смотрел этот стих
-    if (!isAuthor && !viewedSongs.includes(songId)) {
+    const alreadyViewed = viewedSongs.includes(songId);
+
+    if (!isAuthor && !alreadyViewed) {
         db.collection('songs').doc(songId).update({ views: firebase.firestore.FieldValue.increment(1) });
-        // Запоминаем просмотр
         viewedSongs.push(songId);
-        localStorage.setItem('dark_lyrics_viewed', JSON.stringify(viewedSongs.slice(-100))); // храним последние 100 просмотров
+        localStorage.setItem('dark_lyrics_viewed', JSON.stringify(viewedSongs.slice(-100)));
     }
-    const currentViews = (song.views || 0) + (viewedSongs.includes(songId) ? 0 : 1);
+    const currentViews = (song.views || 0) + (!isAuthor && !alreadyViewed ? 1 : 0);
 
     document.getElementById('detailTitle').textContent = song.title;
     document.getElementById('detailAuthor').textContent = song.author;
 
-    // Показываем или скрываем значок 18+ в детальном просмотре
     const adultBadge = document.getElementById('detailAdultBadge');
     if (adultBadge) {
         adultBadge.style.display = containsAdultContent(song.text) ? 'inline' : 'none';
@@ -903,9 +897,10 @@ async function openDetailModal(songId) {
         : null;
     document.getElementById('avgRatingDisplay').textContent = avg ? `(Средняя: ${avg} / 5)` : '(ещё нет оценок)';
 
-    // Лайк
+    // Лайк — проверяем через отдельную коллекцию
+    const isLiked = await checkIsLiked(songId);
     const btnLike = document.getElementById('btnLikeDetail');
-    btnLike.classList.toggle('liked', !!(song.likedBy && song.likedBy[visitor]));
+    btnLike.classList.toggle('liked', isLiked);
     btnLike.onclick = (e) => { e.stopPropagation(); toggleLike(song); };
 
     // Права доступа
@@ -943,9 +938,9 @@ async function openDetailModal(songId) {
     renderRatingStars(song);
     openModal(document.getElementById('modalDetail'));
 }
+
 document.getElementById('btnCloseDetail').addEventListener('click', () => closeModal(document.getElementById('modalDetail')));
 document.getElementById('btnCloseDetailBottom').addEventListener('click', () => closeModal(document.getElementById('modalDetail')));
-
 
 // ========== ЗВЁЗДЫ ==========
 function renderRatingStars(song) {
@@ -973,21 +968,38 @@ async function rateSong(song, value) {
 }
 
 // ========== ЛАЙКИ ==========
+// Лайки хранятся в отдельной коллекции 'likes' (songId_visitorKey),
+// чтобы правила Firebase не блокировали запись не-авторам в документ стиха.
 async function toggleLike(song) {
     const visitor = getVisitorKey();
-    const likedBy = { ...(song.likedBy || {}) };
-    if (likedBy[visitor]) {
-        delete likedBy[visitor];
-        await db.collection('songs').doc(song.id).update({ likes: firebase.firestore.FieldValue.increment(-1), likedBy });
-        song.likes = (song.likes || 1) - 1;
+    const likeDocId = song.id + '_' + visitor;
+    const likeRef = db.collection('likes').doc(likeDocId);
+    const songRef = db.collection('songs').doc(song.id);
+
+    const likeDoc = await likeRef.get();
+    const alreadyLiked = likeDoc.exists;
+
+    if (alreadyLiked) {
+        await likeRef.delete();
+        await songRef.update({ likes: firebase.firestore.FieldValue.increment(-1) });
+        song.likes = Math.max(0, (song.likes || 1) - 1);
+        song.likedBy = { ...(song.likedBy || {}) };
+        delete song.likedBy[visitor];
     } else {
-        likedBy[visitor] = true;
-        await db.collection('songs').doc(song.id).update({ likes: firebase.firestore.FieldValue.increment(1), likedBy });
+        await likeRef.set({ songId: song.id, visitor, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        await songRef.update({ likes: firebase.firestore.FieldValue.increment(1) });
         song.likes = (song.likes || 0) + 1;
+        song.likedBy = { ...(song.likedBy || {}), [visitor]: true };
     }
-    song.likedBy = likedBy;
+
     document.getElementById('btnLikeCount').textContent = song.likes;
-    document.getElementById('btnLikeDetail').classList.toggle('liked', !!likedBy[visitor]);
+    document.getElementById('btnLikeDetail').classList.toggle('liked', !alreadyLiked);
+}
+
+async function checkIsLiked(songId) {
+    const visitor = getVisitorKey();
+    const likeDoc = await db.collection('likes').doc(songId + '_' + visitor).get();
+    return likeDoc.exists;
 }
 
 // ========== ПРОФИЛЬ ==========
