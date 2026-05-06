@@ -295,10 +295,20 @@ body::before {
 
 /* ========== 18+ РАЗМЫТИЕ НА КАРТОЧКЕ ========== */
 .song-card.adult .song-card-preview {
-    filter: blur(4px);
     position: relative;
-    /* Чтобы плашка не размывалась */
     overflow: hidden;
+}
+
+.song-card.adult .song-card-preview::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    filter: blur(4px);
+    z-index: 1;
 }
 
 .adult-overlay {
