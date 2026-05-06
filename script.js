@@ -856,7 +856,8 @@ async function reportSong(songId) {
 
 // ========== ДЕТАЛЬНЫЙ ПРОСМОТР ==========
 async function openDetailModal(songId) {
-    const doc = await db.collection('songs').doc(songId).get();
+    try {
+        const doc = await db.collection('songs').doc(songId).get();
     if (!doc.exists) return;
     const song = doc.data();
     song.id = doc.id;
@@ -897,8 +898,14 @@ async function openDetailModal(songId) {
         : null;
     document.getElementById('avgRatingDisplay').textContent = avg ? `(Средняя: ${avg} / 5)` : '(ещё нет оценок)';
 
-    // Лайк — проверяем через отдельную коллекцию
-    const isLiked = await checkIsLiked(songId);
+    // Лайк — проверяем через отдельную коллекцию (с защитой от ошибки прав)
+    let isLiked = false;
+    try {
+        isLiked = await checkIsLiked(songId);
+    } catch (e) {
+        // Если правила Firebase не разрешают читать — просто показываем без лайка
+        isLiked = !!(song.likedBy && song.likedBy[visitor]);
+    }
     const btnLike = document.getElementById('btnLikeDetail');
     btnLike.classList.toggle('liked', isLiked);
     btnLike.onclick = (e) => { e.stopPropagation(); toggleLike(song); };
@@ -937,6 +944,10 @@ async function openDetailModal(songId) {
 
     renderRatingStars(song);
     openModal(document.getElementById('modalDetail'));
+    } catch (error) {
+        showToast('❌ Не удалось открыть стих: ' + error.message);
+        console.error('openDetailModal error:', error);
+    }
 }
 
 document.getElementById('btnCloseDetail').addEventListener('click', () => closeModal(document.getElementById('modalDetail')));
