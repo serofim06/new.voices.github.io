@@ -64,39 +64,161 @@ function getVisitorKey() {
     return key;
 }
 
-// ==================== ФИЛЬТРАЦИЯ КОНТЕНТА ====================
+// ==================== НОВАЯ ФИЛЬТРАЦИЯ КОНТЕНТА ====================
 
-const RAW_FORBIDDEN = [
-    // Русский мат
-    'хуй','хуя','хую','хуем','хуёв','хуям','хуями','хуях','хуярит',
-    'пизда','пизды','пизде','пизду','пиздой','пиздц','пиздят','пиздец','пиздеца','пиздецу','пиздецом',
-    'ебать','ебу','ебёт','ебут','ёб','ебал','ебало','ебала','еблан','уебан','долбоеб','долбоёб',
-    'блядь','бляди','блядей','блядям','блядями','блять',
-    'сука','суки','суке','суку','сукой','сукою','сучка','сучки','сучке','сучку','сучкой',
-    'нахер','нахуй','нахуя','похуй','похер','нихуя',
-    'заебал','заебала','заебало','заебали','заебись',
-    'хуево','хуёво','хуевый','хуёвый','хуевая','хуёвая',
-    'гандон','гондон','мудак','пидор','пидорас','чмо',
-    'шлюха','шлюхи','шлюхе','шлюху','шлюхой','шлюх',
-    'проститутка','проститутки','проститутке','проститутку',
-    'мразь','мрази','мразью','шалава','шалавы','шалаве','шалаву','шалавой',
-    'ублюдок','ублюдка','ублюдку','ублюдком','ублюдке',
-    'дерьмо','дерьма','дерьму','дерьмом',
-    // Английский мат
-    'fuck','shit','bitch','dick','pussy','cunt','bastard','whore','slut',
-    'nigger','nigga','faggot','retard','motherfucker','asshole',
-    'douchebag','jackass',
-    // Наркотики RU
-    'героин','кокаин','кокс','амфетамин','метамфетамин','экстази','мдма',
-    'марихуана','каннабис','гашиш','мефедрон','опиум','опиаты','морфин','метадон',
-    'бутират','спайс','насвай','снюс','психоделик','галлюциноген','передоз',
-    'торчок','нарик','ширяться','наркоман','наркотик',
-    // Наркотики EN
-    'heroin','cocaine','crack','methamphetamine','meth','ecstasy','mdma','molly',
-    'marijuana','cannabis','hashish','mephedrone','lsd','opium','morphine',
-    'methadone','fentanyl','ketamine','psilocybin','ayahuasca','steroids',
+// ---------- Категория 1: ПОЛНАЯ БЛОКИРОВКА (наркотики, насилие, угрозы) ----------
+const HARD_BLOCKED = [
+    // Наркотики (русские)
+    'наркотик', 'наркотики', 'наркота', 'наркомания', 'наркоман',
+    'героин', 'герыч', 'герик', 'гердос',
+    'кокаин', 'кокс', 'крек',
+    'амфетамин', 'амф', 'фенамин',
+    'метамфетамин', 'мет', 'метамфа', 'первитин',
+    'экстази', 'мдма',
+    'марихуана', 'марихуанна', 'каннабис', 'конопля',
+    'гашиш', 'гаш', 'гашик',
+    'мефедрон', 'меф',
+    'лсд',
+    'опиум', 'опий', 'опиаты',
+    'морфин', 'морфий', 'морфа',
+    'метадон', 'метад', 'метода',
+    'бутират', 'оксибутират',
+    'спайс', 'спайсы', 'курительная смесь',
+    'насвай', 'снюс', 'жевательный табак',
+    'психотроп', 'психотропы', 'психоделик', 'психоделики',
+    'галлюциноген', 'галлюциногены',
+    'стимулятор', 'стимуляторы',
+    'депрессант', 'депрессанты',
+    'дозняк',
+    'ширка', 'ширево', 'ширяться',
+    'передоз', 'передозировка',
+    'торчок', 'торчки', 'нарик', 'нарики',
+    'дурь', 'травка', 'план', 'косяк',
+    // Наркотики (английские)
+    'heroin', 'cocaine', 'crack', 'coke',
+    'amphetamine', 'methamphetamine', 'meth',
+    'ecstasy', 'mdma', 'molly',
+    'marijuana', 'cannabis', 'weed', 'pot', 'joint',
+    'hashish', 'hash',
+    'mephedrone', 'meow',
+    'lsd', 'acid', 'blotter',
+    'opium', 'morphine',
+    'methadone',
+    'oxycodone', 'oxycontin', 'oxy',
+    'fentanyl', 'fentanil',
+    'ketamine', 'ket',
+    'psilocybin', 'mushrooms', 'shrooms',
+    'dmt', 'ayahuasca',
+    'xanax', 'valium', 'diazepam',
+    'ghb', 'rohypnol', 'roofies',
+    'steroids',
+    // Насилие, угрозы, суицид (русские)
+    'убить', 'убью', 'убьёт', 'убийство', 'убийца',
+    'зарезать', 'зарежу', 'зарежет',
+    'взорвать', 'взорву',
+    'изнасиловать', 'изнасилую',
+    'повесить', 'повешу',
+    'прикончить', 'прикончу',
+    'замочить', 'замочу',
+    'грохнуть', 'грохну',
+    'пришить', 'пришью',
+    'завалить', 'завалю',
+    'террорист', 'терроризм', 'теракт',
+    'расчленить', 'расчленёнка',
+    'пытать', 'пытка',
+    'казнить', 'казнь',
+    'смерть', 'смертельный',
+    'кровь', 'кровавый', 'кровопролитие',
+    'резня', 'бойня',
+    'массовое убийство', 'стрельба в школе',
+    'суицид', 'самоубийство', 'самоубийца',
+    'повеситься', 'застрелиться', 'отравиться',
+    // Насилие (английские)
+    'kill', 'murder', 'murderer',
+    'massacre', 'slaughter',
+    'terrorist', 'terrorism',
+    'rape', 'rapist',
+    'torture',
+    'execute', 'execution',
+    'suicide', 'suicidal',
+    'bomb', 'bombing',
+    'shoot', 'shooting',
+    'stab', 'stabbing',
+    'strangle', 'strangulation',
 ];
 
+// ---------- Категория 2: СИГАРЕТЫ И АЛКОГОЛЬ (помечаются 18+) ----------
+const ALCOHOL_SMOKING = [
+    // Русские
+    'сигарета', 'сигареты', 'сигарету', 'сигаретой',
+    'табак', 'табака', 'табаку', 'табаком',
+    'курение', 'курить', 'курят', 'курил',
+    'алкоголь', 'алкоголя', 'алкоголю', 'алкоголем',
+    'водка', 'водки', 'водке', 'водку', 'водкой',
+    'пиво', 'пива', 'пиву', 'пивом',
+    'вино', 'вина', 'вину', 'вином',
+    'коньяк', 'коньяка', 'коньяку', 'коньяком',
+    'шампанское', 'шампанского', 'шампанскому', 'шампанским',
+    'пьяный', 'пьяная', 'пьяное', 'пьяные',
+    'напиток', 'напитки', 'пьющий', 'выпить', 'выпил',
+    'дым', 'дыма', 'затяжка', 'затяжки',
+    // Английские
+    'cigarette', 'cigarettes', 'tobacco',
+    'smoking', 'smoke', 'smoker',
+    'alcohol', 'beer', 'wine', 'vodka', 'whiskey', 'champagne',
+    'drunk', 'drink', 'drinking',
+];
+
+// ---------- Категория 3: СЕКС И МАТ (помечаются 16+) ----------
+const SEX_PROFANITY = [
+    // Мат (русский)
+    'хуй', 'хуя', 'хую', 'хуем', 'хуе', 'хуёв', 'хуям', 'хуями', 'хуях', 'хуярит',
+    'пизда', 'пизды', 'пизде', 'пизду', 'пиздой', 'пиздц', 'пиздят',
+    'ебать', 'ебу', 'ебёт', 'ебут', 'ёб', 'ебал', 'ебало', 'ебала',
+    'блядь', 'бляди', 'блядей', 'блядям', 'блядями', 'блядях', 'блять',
+    'сука', 'суки', 'суке', 'суку', 'сукой', 'сукою', 'сук', 'сучка',
+    'нахер', 'нахуй', 'нахуя', 'похуй', 'похер', 'нихуя',
+    'заебал', 'заебала', 'заебало', 'заебали', 'заебись', 'заебца',
+    'хуево', 'хуёво', 'хуевый', 'хуёвый', 'хуевая', 'хуёвая',
+    'пиздец', 'пиздеца', 'пиздецу', 'пиздецом', 'пиздеце',
+    'еблан', 'еблана', 'еблану', 'ебланом', 'еблане', 'ебланы',
+    'уебан', 'уебана', 'уебану', 'уебаном', 'уебане', 'уебаны',
+    'долбоеб', 'долбоёб', 'долбоеба', 'долбоёба', 'долбоебы', 'долбоёбы',
+    'гандон', 'гондон', 'гандона', 'гондона', 'гандону', 'гондону',
+    'пидор', 'пидора', 'пидору', 'пидором', 'пидоре', 'пидоры',
+    'пидорас', 'пидораса', 'пидорасу', 'пидорасом', 'пидорасе',
+    'чмо', 'чма', 'чму', 'чмом', 'чме', 'чмы',
+    'шлюха', 'шлюхи', 'шлюхе', 'шлюху', 'шлюхой', 'шлюхою', 'шлюх',
+    'проститутка', 'проститутки', 'проститутке', 'проститутку',
+    'мразь', 'мрази', 'мразью', 'мразей', 'мразям', 'мразями',
+    'шалава', 'шалавы', 'шалаве', 'шалаву', 'шалавой', 'шалав',
+    'ублюдок', 'ублюдка', 'ублюдку', 'ублюдком', 'ублюдке', 'ублюдки',
+    'дерьмо', 'дерьма', 'дерьму', 'дерьмом', 'дерьме',
+    'член',
+    // Мат (английский)
+    'fuck', 'fucked', 'fucking', 'fucker', 'fuckers', 'motherfucker', 'motherfuckers',
+    'shit', 'shits', 'shitting', 'shitty', 'bullshit',
+    'ass', 'asses', 'asshole', 'assholes',
+    'bitch', 'bitches', 'bitching', 'bitchy',
+    'dick', 'dicks', 'dickhead', 'dickheads',
+    'pussy', 'pussies',
+    'cunt', 'cunts',
+    'bastard', 'bastards',
+    'whore', 'whores',
+    'slut', 'sluts', 'slutty',
+    'retard', 'retards', 'retarded',
+    'moron', 'morons',
+    'douchebag', 'douchebags', 'douche',
+    'jackass', 'jackasses',
+    // Секс
+    'секс', 'секса', 'сексу', 'сексом',
+    'трах', 'трахать', 'трахнуть', 'трахаться',
+    'орас', 'оральный', 'вагина', 'вагины',
+    'сексуальный', 'сексуальные',
+    'sex', 'fuck', 'intercourse',
+];
+
+// ======================= ФУНКЦИИ ПРОВЕРКИ =======================
 function normalizeStr(str) {
     return str.toLowerCase()
         .replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e')
@@ -104,62 +226,46 @@ function normalizeStr(str) {
         .replace(/8/g,'b').replace(/@/g,'a').replace(/\$/g,'s').replace(/!/g,'i');
 }
 
-// Предварительно нормализуем список запрещённых слов
-const NORMALIZED_FORBIDDEN = RAW_FORBIDDEN.map(w => normalizeStr(w));
-
-function containsForbiddenWord(text) {
-    if (!text) return false;
+function containsAny(text, wordList) {
+    if (!text || !text.trim()) return false;
     const norm = normalizeStr(text);
     const noSpaces = norm.replace(/\s+/g, '');
-    for (let i = 0; i < NORMALIZED_FORBIDDEN.length; i++) {
-        const bad = NORMALIZED_FORBIDDEN[i];
+    for (let i = 0; i < wordList.length; i++) {
+        const bad = normalizeStr(wordList[i]).replace(/\s+/g, '');
         if (noSpaces.includes(bad) || norm.includes(bad)) return true;
     }
     return false;
 }
 
+// Проверка текста стиха (блокируем только наркотики/насилие)
 function isTextAllowed(text) {
-    if (!text || text.trim().length === 0)
+    if (!text || text.trim().length === 0) {
         return { allowed: false, reason: 'Текст не может быть пустым' };
+    }
     const lines = text.split('\n').filter(l => l.trim().length > 0);
-    if (lines.length < 2)
+    if (lines.length < 2) {
         return { allowed: false, reason: 'Минимум 2 непустые строки' };
-    return { allowed: true };
-}
-
-function isTitleAllowed(title) {
-    if (!title || title.trim().length === 0)
-        return { allowed: false, reason: 'Введи название' };
-    if (containsForbiddenWord(title))
-        return { allowed: false, reason: 'Название содержит недопустимые выражения' };
-    return { allowed: true };
-}
-
-const FORBIDDEN_USERNAMES_EXTRA = [
-    'admin','administrator','moderator','root','system','support','help','staff','owner','creator',
-    'лох','дебил','идиот','козел',
-];
-
-function isUsernameAllowed(username) {
-    if (!username || username.length < 2 || username.length > 35)
-        return { allowed: false, reason: 'Никнейм должен быть от 2 до 35 символов' };
-    if (!/^[a-zA-Zа-яА-ЯёЁ0-9 _-]+$/.test(username))
-        return { allowed: false, reason: 'Никнейм содержит недопустимые символы' };
-    if (username !== username.trim())
-        return { allowed: false, reason: 'Никнейм не может начинаться или заканчиваться пробелом' };
-    if (/^\d+$/.test(username))
-        return { allowed: false, reason: 'Никнейм не может состоять только из цифр' };
-
-    const normalized = normalizeStr(username).replace(/\s+/g, '').replace(/[^a-zа-яё]/g, '');
-
-    const allBad = [...NORMALIZED_FORBIDDEN, ...FORBIDDEN_USERNAMES_EXTRA.map(normalizeStr)];
-    for (const bad of allBad) {
-        const normBad = bad.replace(/\s+/g, '').replace(/[^a-zа-яё]/g, '');
-        if (normBad.length >= 3 && normalized.includes(normBad))
-            return { allowed: false, reason: 'Этот никнейм содержит запрещённые слова' };
+    }
+    if (containsAny(text, HARD_BLOCKED)) {
+        return { allowed: false, reason: 'Текст содержит запрещённые темы (наркотики, насилие, угрозы)' };
     }
     return { allowed: true };
 }
+
+// Проверка заголовка (запрещаем всё нежелательное)
+function isTitleAllowed(title) {
+    if (!title || title.trim().length === 0) {
+        return { allowed: false, reason: 'Введи название' };
+    }
+    if (containsAny(title, HARD_BLOCKED) || containsAny(title, ALCOHOL_SMOKING) || containsAny(title, SEX_PROFANITY)) {
+        return { allowed: false, reason: 'Название содержит недопустимые выражения' };
+    }
+    return { allowed: true };
+}
+
+// Проверки для взрослых меток
+function containsAdultAlcohol(text) { return containsAny(text, ALCOHOL_SMOKING); }
+function containsAdultSex(text) { return containsAny(text, SEX_PROFANITY); }
 
 // ==================== ГЛОБАЛЬНОЕ СОСТОЯНИЕ ====================
 
@@ -445,23 +551,24 @@ async function renderSongs() {
             : '';
 
         card.innerHTML = `
-            <div class="song-card-header">
-                <span class="song-card-title">${escapeHTML(song.title)}</span>
-                <span class="song-card-date">${formatDate(song.createdAt)}</span>
-            </div>
-            <span class="song-card-author">👤 ${escapeHTML(song.author)}</span>
-            <div class="song-card-preview">
-                ${escapeHTML(preview)}
-                ${isAdult ? '<div class="adult-overlay" aria-hidden="true">🔞 18+</div>' : ''}
-            </div>
-            <div class="song-card-footer">
-                <div class="stats">
-                    <span title="Лайки">❤️ ${song.likes || 0}</span>
-                    <span title="Рейтинг">⭐ ${avg}</span>
-                    <span title="Просмотры">👁 ${song.views || 0}</span>
-                </div>
-                ${adminDeleteBtn}
-            </div>`;
+    <div class="song-card-header">
+        <span class="song-card-title">${escapeHTML(song.title)}</span>
+        <span class="song-card-date">${formatDate(song.createdAt)}</span>
+    </div>
+    <span class="song-card-author">👤 ${escapeHTML(song.author)}</span>
+    <div class="song-card-preview">
+        ${escapeHTML(preview)}
+        ${containsAdultAlcohol(song.text) ? '<div class="adult-overlay-18">🔞 18+</div>' : ''}
+        ${containsAdultSex(song.text) ? '<div class="adult-overlay-16">🔞 16+</div>' : ''}
+    </div>
+    <div class="song-card-footer">
+        <div class="stats">
+            <span title="Лайки">❤️ ${song.likes || 0}</span>
+            <span title="Рейтинг">⭐ ${avg}</span>
+            <span title="Просмотры">👁 ${song.views || 0}</span>
+        </div>
+        ${adminDeleteBtn}
+    </div>`;
 
         card.addEventListener('click', (e) => {
             if (e.target.closest('.btn-delete-card')) return;
@@ -623,8 +730,16 @@ async function openDetailModal(songId) {
     document.getElementById('detailText').textContent = song.text;
     document.getElementById('btnLikeCount').textContent = song.likes || 0;
 
-    const adultBadge = document.getElementById('detailAdultBadge');
-    if (adultBadge) adultBadge.style.display = containsForbiddenWord(song.text) ? 'inline' : 'none';
+    // Вместо текущего adultBadge.style.display = ... пишем:
+const alcoholBadge = document.getElementById('detailAdultBadge');
+const sexBadge = document.getElementById('detailSixteenBadge');
+
+if (alcoholBadge) {
+    alcoholBadge.style.display = containsAdultAlcohol(song.text) ? 'inline' : 'none';
+}
+if (sexBadge) {
+    sexBadge.style.display = containsAdultSex(song.text) ? 'inline' : 'none';
+}
 
     const ratingsVals = Object.values(song.ratings || {});
     const avg = ratingsVals.length
