@@ -290,7 +290,6 @@ function openModal(modal) {
     if (!modal) return;
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    // Фокус на первый input внутри
     requestAnimationFrame(() => {
         const first = modal.querySelector('input, textarea, button:not(.modal-close)');
         if (first) first.focus();
@@ -376,7 +375,6 @@ document.getElementById('btnSubmitRegister').addEventListener('click', async () 
         await cred.user.updateProfile({ displayName: username });
         await cred.user.sendEmailVerification();
         closeModal(document.getElementById('modalRegister'));
-        // Очищаем форму
         ['regEmail','regUsername','regPassword','regPasswordConfirm']
             .forEach(id => document.getElementById(id).value = '');
         showToast('✅ Регистрация успешна! Проверь почту 📧');
@@ -504,7 +502,6 @@ async function renderSongs() {
         return;
     }
 
-    // Клиентская сортировка
     if (currentSort === 'popular') {
         songs = [...songs].sort((a, b) => (b.likes || 0) - (a.likes || 0));
     } else if (currentSort === 'topRated') {
@@ -530,7 +527,7 @@ async function renderSongs() {
     const fragment = document.createDocumentFragment();
     songs.forEach(song => {
         const card = document.createElement('div');
-        card.className = 'song-card' + (containsForbiddenWord(song.text) ? ' adult' : '');
+        card.className = 'song-card';  // <-- ИСПРАВЛЕНО: убран containsForbiddenWord
         card.dataset.id = song.id;
         card.setAttribute('role', 'listitem');
         card.tabIndex = 0;
@@ -545,30 +542,29 @@ async function renderSongs() {
             return lines.length > 3 ? lines.slice(0, 3).join('\n') + '\n...' : song.text;
         })();
 
-        const isAdult = containsForbiddenWord(song.text);
         const adminDeleteBtn = isAdmin()
             ? `<button class="btn btn-danger btn-sm btn-delete-card" data-id="${song.id}" aria-label="Удалить">🗑️</button>`
             : '';
 
         card.innerHTML = `
-    <div class="song-card-header">
-        <span class="song-card-title">${escapeHTML(song.title)}</span>
-        <span class="song-card-date">${formatDate(song.createdAt)}</span>
-    </div>
-    <span class="song-card-author">👤 ${escapeHTML(song.author)}</span>
-    <div class="song-card-preview">
-        ${escapeHTML(preview)}
-        ${containsAdultAlcohol(song.text) ? '<div class="adult-overlay-18">🔞 18+</div>' : ''}
-        ${containsAdultSex(song.text) ? '<div class="adult-overlay-16">🔞 16+</div>' : ''}
-    </div>
-    <div class="song-card-footer">
-        <div class="stats">
-            <span title="Лайки">❤️ ${song.likes || 0}</span>
-            <span title="Рейтинг">⭐ ${avg}</span>
-            <span title="Просмотры">👁 ${song.views || 0}</span>
+        <div class="song-card-header">
+            <span class="song-card-title">${escapeHTML(song.title)}</span>
+            <span class="song-card-date">${formatDate(song.createdAt)}</span>
         </div>
-        ${adminDeleteBtn}
-    </div>`;
+        <span class="song-card-author">👤 ${escapeHTML(song.author)}</span>
+        <div class="song-card-preview">
+            ${escapeHTML(preview)}
+            ${containsAdultAlcohol(song.text) ? '<div class="adult-overlay-18">🔞 18+</div>' : ''}
+            ${containsAdultSex(song.text) ? '<div class="adult-overlay-16">🔞 16+</div>' : ''}
+        </div>
+        <div class="song-card-footer">
+            <div class="stats">
+                <span title="Лайки">❤️ ${song.likes || 0}</span>
+                <span title="Рейтинг">⭐ ${avg}</span>
+                <span title="Просмотры">👁 ${song.views || 0}</span>
+            </div>
+            ${adminDeleteBtn}
+        </div>`;
 
         card.addEventListener('click', (e) => {
             if (e.target.closest('.btn-delete-card')) return;
@@ -643,7 +639,6 @@ async function openEditModal(songId) {
     const snap = await db.collection('songs').doc(songId).get();
     if (!snap.exists) return;
     const song = snap.data();
-    // ИСПРАВЛЕНИЕ: правильный id поля (editTitleInput, а не editTitle)
     document.getElementById('editTitleInput').value = song.title;
     document.getElementById('editText').value = song.text;
     window._editingSongId = songId;
@@ -703,7 +698,6 @@ async function openDetailModal(songId) {
     const song = { id: snap.id, ...snap.data() };
     currentDetailSongId = songId;
 
-    // Подсчёт просмотров (защита от накрутки)
     const visitor = getVisitorKey();
     const viewedKey = 'nv_viewed';
     const viewed = JSON.parse(localStorage.getItem(viewedKey) || '[]');
@@ -716,7 +710,7 @@ async function openDetailModal(songId) {
     if (!isAuthor && !viewed.includes(songId)) {
         db.collection('songs').doc(songId).update({
             views: firebase.firestore.FieldValue.increment(1)
-        }).catch(() => {}); // Не блокируем UI при ошибке
+        }).catch(() => {});
         viewed.push(songId);
         localStorage.setItem(viewedKey, JSON.stringify(viewed.slice(-100)));
     }
@@ -730,16 +724,15 @@ async function openDetailModal(songId) {
     document.getElementById('detailText').textContent = song.text;
     document.getElementById('btnLikeCount').textContent = song.likes || 0;
 
-    // Вместо текущего adultBadge.style.display = ... пишем:
-const alcoholBadge = document.getElementById('detailAdultBadge');
-const sexBadge = document.getElementById('detailSixteenBadge');
-
-if (alcoholBadge) {
-    alcoholBadge.style.display = containsAdultAlcohol(song.text) ? 'inline' : 'none';
-}
-if (sexBadge) {
-    sexBadge.style.display = containsAdultSex(song.text) ? 'inline' : 'none';
-}
+    // Новые бейджи 18+ / 16+
+    const alcoholBadge = document.getElementById('detailAdultBadge');
+    const sexBadge = document.getElementById('detailSixteenBadge');
+    if (alcoholBadge) {
+        alcoholBadge.style.display = containsAdultAlcohol(song.text) ? 'inline' : 'none';
+    }
+    if (sexBadge) {
+        sexBadge.style.display = containsAdultSex(song.text) ? 'inline' : 'none';
+    }
 
     const ratingsVals = Object.values(song.ratings || {});
     const avg = ratingsVals.length
@@ -749,12 +742,10 @@ if (sexBadge) {
         ? `Средняя: ${avg} / 5`
         : 'ещё нет оценок';
 
-    // Лайк
     const btnLike = document.getElementById('btnLikeDetail');
     btnLike.classList.toggle('liked', !!(song.likedBy && song.likedBy[visitor]));
     btnLike.onclick = (e) => { e.stopPropagation(); toggleLike(song); };
 
-    // Права
     const isOwner = currentUser && (
         song.authorId === currentUser.uid
         || song.author === currentUser.displayName
@@ -802,7 +793,6 @@ function renderRatingStars(song) {
             if (!currentUser) return showToast('⚠️ Войди, чтобы оценить');
             rateSong(song, val);
         };
-        // Клавиатурная навигация
         star.onkeydown = (e) => {
             if ((e.key === 'Enter' || e.key === ' ') && currentUser) {
                 e.preventDefault();
@@ -896,7 +886,6 @@ async function openProfileModal() {
     document.getElementById('profileUsername').textContent =
         currentUser.displayName || currentUser.email;
 
-    // Статус почты
     const statusEl = document.getElementById('profileVerifiedStatus');
     if (currentUser.emailVerified) {
         statusEl.innerHTML = '<span style="color:#6a9e6a;">✅ Почта подтверждена</span>';
@@ -909,7 +898,6 @@ async function openProfileModal() {
         if (resendBtn) resendBtn.addEventListener('click', sendVerificationEmail);
     }
 
-    // Стихи пользователя
     const snapshot = await db.collection('songs')
         .where('authorId', '==', currentUser.uid)
         .get();
@@ -977,7 +965,7 @@ async function openProfileModal() {
     openModal(document.getElementById('modalProfile'));
 }
 
-// Смена никнейма (заглушка — расширяется при необходимости)
+// Смена никнейма
 document.getElementById('btnChangeNickname')?.addEventListener('click', async () => {
     const newName = prompt('Введи новый псевдоним:');
     if (!newName) return;
