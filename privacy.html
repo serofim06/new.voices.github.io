@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Политика конфиденциальности — Не стихшие голоса</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #161616;
+            --bg-input: #1c1c1c;
+            --text-primary: #d8d0c4;
+            --text-secondary: #8a8278;
+            --text-muted: #555050;
+            --accent: #c8b89a;
+            --accent-hover: #e0cdb0;
+            --accent-glow: rgba(200, 184, 154, 0.2);
+            --border: #272320;
+            --border-focus: #4a4540;
+            --font-display: 'Cinzel', 'MedievalSharp', Georgia, serif;
+            --font-body: 'IM Fell English', Georgia, serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.7;
+            padding: 40px 24px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            background-image: url('data:image/png;base64,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');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .privacy-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(17, 17, 17, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            color: #e8e0d4;
+            margin: 28px 0 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        p, li {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="privacy-container">
+        <h1>Политика конфиденциальности и обработки персональных данных</h1>
+        <p><strong>Дата последнего обновления:</strong> 12 мая 2026 г.</p>
+
+        <p>Настоящая Политика конфиденциальности и обработки персональных данных (далее — «Политика») действует в отношении всей информации, которую сайт <strong>«Не стихшие голоса»</strong> (далее — «Сайт»), расположенный на доменном имени <em>[ваш-домен]</em>, может получить о Пользователе во время использования Сайта, его сервисов, программ и продуктов.</p>
+
+        <h2>1. Определение терминов</h2>
+        <p><strong>Персональные данные</strong> — любая информация, относящаяся к прямо или косвенно определённому, или определяемому физическому лицу (субъекту персональных данных).</p>
+        <p><strong>Обработка персональных данных</strong> — любое действие (операция) или совокупность действий (операций), совершаемых с использованием средств автоматизации или без использования таких средств с персональными данными, включая сбор, запись, систематизацию, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передачу (распространение, предоставление, доступ), обезличивание, блокирование, удаление, уничтожение персональных данных.</p>
+        <p><strong>Конфиденциальность персональных данных</strong> — обязательное для соблюдения Администрацией Сайта требование не допускать их распространения без согласия субъекта персональных данных или наличия иного законного основания.</p>
+
+        <h2>2. Какие данные мы собираем</h2>
+        <p>При регистрации и дальнейшем использовании Сайта Пользователь предоставляет следующую информацию:</p>
+        <ul>
+            <li><strong>Адрес электронной почты (email)</strong> — используется для создания учётной записи, входа в систему и отправки уведомлений (например, подтверждение регистрации, восстановление пароля).</li>
+            <li><strong>Псевдоним (никнейм)</strong> — публичное имя, под которым Пользователь публикует стихи и взаимодействует с контентом. Отображается в профиле и рядом с произведениями.</li>
+            <li><strong>Пароль</strong> — хранится исключительно в зашифрованном виде на стороне провайдера аутентификации и недоступен Администрации Сайта.</li>
+        </ul>
+        <p>Кроме того, автоматически собираются следующие технические данные:</p>
+        <ul>
+            <li>IP-адрес, тип браузера, язык, дата и время запроса — используются для обеспечения работоспособности, безопасности и аналитики.</li>
+            <li>Данные о взаимодействии с Сайтом (лайки, оценки, жалобы, просмотры) — необходимы для функционирования рейтинговой системы и модерации.</li>
+            <li>Файлы cookie и аналогичные технологии (localStorage) — применяются для сохранения сессии, пользовательских настроек и анонимного идентификатора посетителя.</li>
+        </ul>
+
+        <h2>3. Цели обработки персональных данных</h2>
+        <p>Собранные данные используются исключительно для:</p>
+        <ul>
+            <li>Создания и управления учётной записью Пользователя.</li>
+            <li>Обеспечения возможности публикации стихов, участия в рейтингах и отправки жалоб.</li>
+            <li>Поддержания обратной связи (например, отправка писем о подтверждении email, изменениях в работе сервиса).</li>
+            <li>Улучшения качества Сайта, анализа посещаемости и предотвращения мошенничества.</li>
+            <li>Исполнения требований законодательства.</li>
+        </ul>
+
+        <h2>4. Правовые основания обработки</h2>
+        <p>Обработка персональных данных осуществляется на основании:</p>
+        <ul>
+            <li>Согласия Пользователя, выраженного путём регистрации и продолжения использования Сайта.</li>
+            <li>Необходимости исполнения договора, стороной которого является Пользователь (предоставление доступа к функционалу Сайта).</li>
+            <li>Законных интересов Администрации, связанных с безопасностью, аналитикой и улучшением сервиса, при условии соблюдения прав и свобод Пользователя.</li>
+        </ul>
+
+        <h2>5. Хранение и защита данных</h2>
+        <p>Персональные данные хранятся на серверах Firebase (Google Cloud Platform), расположенных на территории государств, обеспечивающих адекватный уровень защиты прав субъектов персональных данных. Администрация принимает все разумные организационные и технические меры для защиты информации от неправомерного или случайного доступа, уничтожения, изменения, блокирования, копирования, распространения.</p>
+        <p>Доступ к персональным данным имеют только уполномоченные сотрудники Администрации, а в случае необходимости — модераторы и администраторы Сайта в объёме, минимально необходимом для выполнения их функций.</p>
+
+        <h2>6. Передача данных третьим лицам</h2>
+        <p>Мы не передаём персональные данные третьим лицам, за исключением случаев, прямо предусмотренных законодательством, или когда это необходимо для предоставления услуг (например, сервера Firebase, обеспечивающие аутентификацию и хранение данных). Во всех остальных случаях передача возможна только с явного согласия Пользователя.</p>
+
+        <h2>7. Права Пользователя</h2>
+        <p>Пользователь имеет право:</p>
+        <ul>
+            <li>Получать информацию о том, какие его персональные данные обрабатываются.</li>
+            <li>Требовать уточнения, блокирования или уничтожения неполных, устаревших, недостоверных, незаконно полученных или не являющихся необходимыми для заявленной цели обработки данных.</li>
+            <li>Отозвать согласие на обработку персональных данных в любой момент, направив соответствующий запрос по электронной почте. В случае отзыва согласия Администрация прекращает обработку и удаляет данные, за исключением случаев, когда обработка необходима для соблюдения законодательства.</li>
+            <li>Удалить свою учётную запись, обратившись в службу поддержки. При удалении аккаунта все личные данные (email, никнейм, статистика) удаляются, опубликованные стихи могут быть обезличены или удалены по желанию автора.</li>
+        </ul>
+
+        <h2>8. Сроки хранения данных</h2>
+        <p>Персональные данные хранятся до тех пор, пока они необходимы для целей, ради которых они были собраны, или до момента отзыва согласия Пользователем. Пользовательские публикации (стихи) и связанные с ними оценки могут сохраняться в обезличенном виде для поддержания целостности контента, если автор не потребовал их полного удаления.</p>
+
+        <h2>9. Изменение Политики конфиденциальности</h2>
+        <p>Администрация оставляет за собой право вносить изменения в настоящую Политику. Новая редакция вступает в силу с момента её публикации на Сайте. Продолжение использования Сайта после внесения изменений означает согласие Пользователя с обновлёнными условиями.</p>
+
+        <h2>10. Контактная информация</h2>
+        <p>Все предложения, вопросы и запросы, касающиеся обработки персональных данных, следует направлять на электронную почту: <a href="mailto:privacy@newvoices.ru">privacy@newvoices.ru</a>.</p>
+
+        <a href="index.html" class="back-link">← Вернуться на сайт</a>
+    </div>
+</body>
+</html>
