@@ -3,178 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New voices — Пиши и делись стихами</title>
-    <link rel="stylesheet" href="style.css?v=1.0.4">
-    <!-- Firebase SDK (compat) — должен быть ДО script.js -->
+    <title>Не стихшие голоса — Пиши и делись стихами</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    <script src="script.js?v=1.0.4" defer></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
 
+    <!-- Декоративные частицы -->
+    <div class="particles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+    </div>
+
     <div class="app-container">
+
         <!-- ШАПКА -->
         <header class="header">
             <div class="logo-area">
-                <img src="logo.png" alt="Логотип" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <span class="logo-text" style="display: none;">📜 New voices</span>
-            </div>
-            <div class="header-actions" id="headerActions">
-                <!-- Кнопки для гостя -->
-                <div id="guestActions">
-                    <button class="btn btn-outline btn-sm" id="btnOpenLogin">🔐 Войти</button>
-                    <button class="btn btn-primary btn-sm" id="btnOpenRegister">✨ Регистрация</button>
-                </div>
-                <!-- Кнопки для пользователя -->
-                <div id="userActions" style="display: none;">
-                    <button class="btn btn-icon" id="btnProfile">👤 <span id="currentUsernameDisplay"></span></button>
-                    <button class="btn btn-primary btn-sm" id="btnOpenAddModal">✍️ Опубликовать новый текст</button>
-                    <button class="btn btn-outline btn-sm" id="btnLogout">🚪 Выйти</button>
+                <img src="logo.png" alt="Логотип" class="logo-img"
+                     onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block';">
+                <span id="logoFallback" class="logo-fallback" style="display:none;">🌿</span>
+                <div class="logo-text-wrap">
+                    <span class="logo-text">Не стихшие голоса</span>
                 </div>
             </div>
+            <nav class="header-actions" id="headerActions">
+                <div id="guestActions" class="action-group">
+                    <button class="btn btn-ghost" id="btnOpenLogin">Войти</button>
+                    <button class="btn btn-primary" id="btnOpenRegister">Регистрация</button>
+                </div>
+                <div id="userActions" class="action-group" style="display:none;">
+                    <button class="btn btn-ghost" id="btnProfile">
+                        <span class="btn-icon-left">👤</span>
+                        <span id="currentUsernameDisplay"></span>
+                    </button>
+                    <button class="btn btn-primary" id="btnOpenAddModal">Опубликовать стих</button>
+                    <button class="btn btn-ghost" id="btnLogout">Выйти</button>
+                </div>
+            </nav>
         </header>
+
+        <!-- ГЕРОИЧЕСКИЙ БАННЕР -->
+        <section class="hero-banner" aria-label="Баннер сайта">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">Не стихшие голоса</h1>
+            </div>
+        </section>
 
         <!-- ОСНОВНОЙ КОНТЕНТ -->
         <main class="main-content">
             <div class="section-header">
-                <h2 class="section-title"><span class="icon">📜</span>Записи наших авторов</h2>
-                <div class="sort-btns" id="sortButtons">
-                    <button class="sort-btn active" data-sort="newest">🕒 Новые</button>
-                    <button class="sort-btn" data-sort="popular">🔥 Популярные</button>
-                    <button class="sort-btn" data-sort="topRated">⭐ Лучшие</button>
+                <h2 class="section-title">Список публикаций</h2>
+                <div class="sort-btns" id="sortButtons" role="group" aria-label="Сортировка">
+                    <button class="sort-btn" data-sort="popular">популярное</button>
+                    <button class="sort-btn active" data-sort="newest">новое</button>
+                    <button class="sort-btn" data-sort="topRated">лучшее</button>
                 </div>
             </div>
-            <div class="songs-grid" id="songsGrid"></div>
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <span class="icon-big">🎶</span>
-                <p>Пока никто ничего не написал.</p>
-                <p>Стань первым — войди и нажми <strong>«Оставить запись»</strong>!</p>
+
+            <div class="songs-grid" id="songsGrid" role="list"></div>
+
+            <div class="empty-state" id="emptyState" style="display:none;" role="status">
+                <span class="empty-icon" aria-hidden="true">📜</span>
+                <p class="empty-title">Здесь пока пусто</p>
+                <p class="empty-sub">Стань первым — войди и нажми <strong>«Опубликовать стих»</strong></p>
             </div>
         </main>
 
         <footer class="footer">
-            © 2026 New voices (Новые голоса) — Платформа для творческих людей.
+            <div class="footer-logos">
+                <img src="logo.png" alt="" class="footer-logo" onerror="this.style.display='none'">
+                <img src="natyrlich.png" alt="Natürlich" class="footer-logo" onerror="this.style.display='none'">
+                <img src="partner.png" alt="" class="footer-logo" onerror="this.style.display='none'">
+                <span class="footer-support">При поддержке Natürlich Community</span>
+            </div>
+            <p class="footer-legal">Пользуясь нашим сайтом, Вы соглашаетесь с политикой конфиденциальности и обработкой персональных данных</p>
+            <p class="footer-copy">© 2026 New voices (Новые голоса) — Платформа для творческих людей.</p>
         </footer>
     </div>
 
-    <!-- ========== МОДАЛЬНЫЕ ОКНА ========== -->
+    <!-- ===== МОДАЛЬНЫЕ ОКНА ===== -->
 
     <!-- Регистрация -->
-    <div class="modal-overlay" id="modalRegister">
+    <div class="modal-overlay" id="modalRegister" role="dialog" aria-modal="true" aria-labelledby="regTitle">
         <div class="modal">
-            <button class="modal-close" id="btnCloseRegister">✕</button>
-            <h2>📝 Регистрация</h2>
-            <label for="regEmail">Email</label>
-            <input type="email" id="regEmail" placeholder="example@mail.com">
-            <label for="regUsername">Псевдоним</label>
-            <input type="text" id="regUsername" placeholder="Отображаемый никнейм?">
-            <label for="regPassword">Пароль</label>
-            <input type="password" id="regPassword" placeholder="Минимум 6 символов">
-            <label for="regPasswordConfirm">Подтверди пароль</label>
-            <input type="password" id="regPasswordConfirm" placeholder="Повтори пароль">
+            <button class="modal-close" id="btnCloseRegister" aria-label="Закрыть">✕</button>
+            <h2 id="regTitle" class="modal-title">Регистрация</h2>
+            <div class="form-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="example@mail.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="regUsername">Псевдоним</label>
+                <input type="text" id="regUsername" placeholder="Твой псевдоним" autocomplete="nickname" maxlength="35">
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Пароль</label>
+                <input type="password" id="regPassword" placeholder="Минимум 6 символов" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label for="regPasswordConfirm">Подтвердите пароль</label>
+                <input type="password" id="regPasswordConfirm" placeholder="Повтори пароль" autocomplete="new-password">
+            </div>
             <div class="btn-row">
-                <button class="btn btn-outline" id="btnCancelRegister">Отмена</button>
-                <button class="btn btn-primary" id="btnSubmitRegister">✅ Зарегистрироваться</button>
+                <button class="btn btn-ghost" id="btnCancelRegister">Отмена</button>
+                <button class="btn btn-primary" id="btnSubmitRegister">Зарегистрироваться</button>
             </div>
         </div>
     </div>
 
     <!-- Вход -->
-    <div class="modal-overlay" id="modalLogin">
+    <div class="modal-overlay" id="modalLogin" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
         <div class="modal">
-            <button class="modal-close" id="btnCloseLogin">✕</button>
-            <h2>🔑 Вход</h2>
-            <label for="loginEmail">Email</label>
-            <input type="email" id="loginEmail" placeholder="Твой email">
-            <label for="loginPassword">Пароль</label>
-            <input type="password" id="loginPassword" placeholder="Пароль">
+            <button class="modal-close" id="btnCloseLogin" aria-label="Закрыть">✕</button>
+            <h2 id="loginTitle" class="modal-title">Вход</h2>
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="Твой email" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Пароль</label>
+                <input type="password" id="loginPassword" placeholder="Пароль" autocomplete="current-password">
+            </div>
             <div class="btn-row">
-                <button class="btn btn-outline" id="btnCancelLogin">Отмена</button>
-                <button class="btn btn-primary" id="btnSubmitLogin">🚪 Войти</button>
+                <button class="btn btn-ghost" id="btnCancelLogin">Отмена</button>
+                <button class="btn btn-primary" id="btnSubmitLogin">Войти</button>
             </div>
         </div>
     </div>
 
     <!-- Добавление стиха -->
-    <div class="modal-overlay" id="modalAdd">
-        <div class="modal">
-            <button class="modal-close" id="btnCloseAdd">✕</button>
-            <h2>🎤 Новый стих</h2>
-            <label for="inputTitle">Название стиха</label>
-            <input type="text" id="inputTitle" placeholder="Введи название..." maxlength="100">
-            <input type="hidden" id="inputAuthor">
-            <label for="inputText">Текст</label>
-            <textarea id="inputText" placeholder="Пиши свои строки здесь..."></textarea>
+    <div class="modal-overlay" id="modalAdd" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+        <div class="modal modal-wide">
+            <button class="modal-close" id="btnCloseAdd" aria-label="Закрыть">✕</button>
+            <h2 id="addTitle" class="modal-title">Новый стих</h2>
+            <div class="form-group">
+                <label for="inputTitle">Название стиха</label>
+                <input type="text" id="inputTitle" placeholder="Название стиха..." maxlength="100" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="inputText">Текст</label>
+                <textarea id="inputText" placeholder="Пиши свои строки здесь..."></textarea>
+            </div>
             <div class="btn-row">
-                <button class="btn btn-outline" id="btnCancelAdd">Отмена</button>
-                <button class="btn btn-primary" id="btnSubmitSong">✨ Опубликовать</button>
+                <button class="btn btn-ghost" id="btnCancelAdd">Отмена</button>
+                <button class="btn btn-primary" id="btnSubmitSong">Опубликовать</button>
             </div>
         </div>
     </div>
 
     <!-- Просмотр стиха -->
-    <div class="modal-overlay" id="modalDetail">
-        <div class="modal">
-            <button class="modal-close" id="btnCloseDetail">✕</button>
-            <h2 id="detailTitle"></h2>
-            <span id="detailAdultBadge" style="display:none;" class="adult-badge">🔞 18+</span>
+    <div class="modal-overlay" id="modalDetail" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+        <div class="modal modal-wide">
+            <button class="modal-close" id="btnCloseDetail" aria-label="Закрыть">✕</button>
+            <div class="detail-header">
+                <h2 id="detailTitle" class="modal-title"></h2>
+                <span id="detailAdultBadge" style="display:none;" class="adult-badge">🔞 18+</span>
+            </div>
             <div class="detail-meta">
                 <span>👤 <strong id="detailAuthor"></strong></span>
                 <span>🕒 <span id="detailDate"></span></span>
-                <span>👁️ <span id="detailViews"></span></span>
+                <span>👁 <span id="detailViews"></span></span>
             </div>
             <div class="detail-text" id="detailText"></div>
-            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 10px 0;">
-                <span style="font-weight:600;">Твоя оценка:</span>
-                <div class="rating-stars" id="ratingStars">
-                    <span class="star-char" data-val="1">★</span>
-                    <span class="star-char" data-val="2">★</span>
-                    <span class="star-char" data-val="3">★</span>
-                    <span class="star-char" data-val="4">★</span>
-                    <span class="star-char" data-val="5">★</span>
+            <div class="rating-row">
+                <span class="rating-label">Оценка:</span>
+                <div class="rating-stars" id="ratingStars" role="group" aria-label="Оценить стих">
+                    <span class="star-char" data-val="1" role="button" tabindex="0" aria-label="1 звезда">★</span>
+                    <span class="star-char" data-val="2" role="button" tabindex="0" aria-label="2 звезды">★</span>
+                    <span class="star-char" data-val="3" role="button" tabindex="0" aria-label="3 звезды">★</span>
+                    <span class="star-char" data-val="4" role="button" tabindex="0" aria-label="4 звезды">★</span>
+                    <span class="star-char" data-val="5" role="button" tabindex="0" aria-label="5 звёзд">★</span>
                 </div>
-                <span id="avgRatingDisplay" style="font-size:0.85rem;"></span>
+                <span id="avgRatingDisplay" class="avg-rating"></span>
             </div>
-                <div class="btn-row" style="margin-top: 12px;">
-                    <button class="btn-icon" id="btnLikeDetail">❤️ <span id="btnLikeCount">0</span></button>
-                    <button class="btn btn-primary" id="btnEditDetail">✏️ Редактировать</button>
-                    <button class="btn btn-danger btn-sm" id="btnDeleteDetail" style="display:none;">🗑️ Удалить</button>
-                    <button class="btn btn-outline btn-sm" id="btnReportSong" style="display:none;">🚩 Пожаловаться</button>
-                    <button class="btn btn-outline btn-sm" id="btnCloseDetailBottom">Закрыть</button>
-                </div>
+            <div class="detail-actions">
+                <button class="btn btn-like" id="btnLikeDetail">❤️ <span id="btnLikeCount">0</span></button>
+                <button class="btn btn-primary btn-sm" id="btnEditDetail" style="display:none;">✏️ Редактировать</button>
+                <button class="btn btn-danger btn-sm" id="btnDeleteDetail" style="display:none;">🗑️ Удалить</button>
+                <button class="btn btn-ghost btn-sm report-btn" id="btnReportSong" style="display:none;">🚩 Пожаловаться</button>
+                <button class="btn btn-ghost btn-sm" id="btnCloseDetailBottom">Закрыть</button>
+            </div>
         </div>
     </div>
 
     <!-- Профиль -->
-    <div class="modal-overlay" id="modalProfile">
-        <div class="modal">
-            <button class="modal-close" id="btnCloseProfile">✕</button>
-            <h2>👤 Профиль: <span id="profileUsername"></span></h2>
-            <div class="profile-stats" id="profileStats"></div>
-            <h3 style="margin: 20px 0 10px;">📋 Мои стихи</h3>
-            <div class="profile-songs-list" id="profileSongsList"></div>
+    <div class="modal-overlay" id="modalProfile" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+        <div class="modal modal-wide">
+            <button class="modal-close" id="btnCloseProfile" aria-label="Закрыть">✕</button>
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img src="logo.png" alt="" onerror="this.parentElement.innerHTML='🌿'">
+                </div>
+                <h2 id="profileTitle" class="modal-title profile-name"><span id="profileUsername"></span></h2>
+            </div>
+            <div class="profile-action-row">
+                <button class="btn btn-ghost btn-sm" id="btnChangeNickname">Сменить никнейм</button>
+                <button class="btn btn-ghost btn-sm" id="btnChangePassword">Сменить пароль</button>
+            </div>
+            <div id="profileStats" class="profile-stats-grid"></div>
+            <div id="profileVerifiedStatus" class="profile-status"></div>
+            <div class="profile-songs-section">
+                <h3 class="profile-songs-title">Опубликованные стихи:</h3>
+                <div class="profile-songs-list" id="profileSongsList"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Тост -->
-    <div class="toast" id="toast"></div>
-
-    <!-- Модальное окно редактирования -->
-<div id="modalEdit" class="modal-overlay">
-    <div class="modal">
-        <button class="modal-close" id="btnCloseEdit">✕</button>
-        <h2>✏️ Редактировать стих</h2>
-        <label for="editTitle">Название</label>
-        <input type="text" id="editTitle" placeholder="Название стиха">
-        <label for="editText">Текст</label>
-        <textarea id="editText" rows="10" placeholder="Введите текст стиха..."></textarea>
-        <div class="btn-row">
-            <button class="btn btn-outline" id="btnCancelEdit">Отмена</button>
-            <button class="btn btn-primary" id="btnSaveEdit">💾 Сохранить</button>
+    <!-- Редактирование стиха -->
+    <div class="modal-overlay" id="modalEdit" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+        <div class="modal modal-wide">
+            <button class="modal-close" id="btnCloseEdit" aria-label="Закрыть">✕</button>
+            <h2 id="editTitle" class="modal-title">Редактировать стих</h2>
+            <div class="form-group">
+                <label for="editTitleInput">Название</label>
+                <input type="text" id="editTitleInput" placeholder="Название стиха" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="editText">Текст</label>
+                <textarea id="editText" rows="10" placeholder="Текст стиха..."></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-ghost" id="btnCancelEdit">Отмена</button>
+                <button class="btn btn-primary" id="btnSaveEdit">💾 Сохранить</button>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- Тост-уведомление -->
+    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
 </body>
 </html>
