@@ -267,6 +267,33 @@ function isTitleAllowed(title) {
 function containsAdultAlcohol(text) { return containsAny(text, ALCOHOL_SMOKING); }
 function containsAdultSex(text) { return containsAny(text, SEX_PROFANITY); }
 
+// Проверка никнейма
+function isUsernameAllowed(username) {
+    if (!username || username.length < 2 || username.length > 20) {
+        return { allowed: false, reason: 'Никнейм должен быть от 2 до 20 символов' };
+    }
+    if (!/^[a-zA-Zа-яА-ЯёЁ0-9 _-]+$/.test(username)) {
+        return { allowed: false, reason: 'Никнейм содержит недопустимые символы' };
+    }
+    if (username !== username.trim()) {
+        return { allowed: false, reason: 'Никнейм не может начинаться или заканчиваться пробелом' };
+    }
+    if (/^\d+$/.test(username)) {
+        return { allowed: false, reason: 'Никнейм не может состоять только из цифр' };
+    }
+    const forbidden = ['admin', 'administrator', 'moderator', 'root', 'system', 'support', 'staff', 'owner'];
+    const norm = username.toLowerCase().replace(/\s+/g, '');
+    for (const word of forbidden) {
+        if (norm.includes(word)) {
+            return { allowed: false, reason: 'Этот никнейм содержит недопустимые слова' };
+        }
+    }
+    if (containsAny(username, SEX_PROFANITY) || containsAny(username, HARD_BLOCKED)) {
+        return { allowed: false, reason: 'Никнейм содержит недопустимые слова' };
+    }
+    return { allowed: true };
+}
+
 // ==================== ГЛОБАЛЬНОЕ СОСТОЯНИЕ ====================
 
 let currentUser = null;
@@ -558,13 +585,14 @@ async function renderSongs() {
         <div class="song-card-footer">
             <div class="stats">
                 <span title="Лайки">❤️ ${song.likes || 0}</span>
-                ${containsAdultAlcohol(song.text) ? '<span class="age-badge age-badge-18">18+</span>' : ''}
-                ${containsAdultSex(song.text) ? '<span class="age-badge age-badge-16">16+</span>' : ''}
                 <span title="Рейтинг">⭐ ${avg}</span>
                 <span title="Просмотры">👁 ${song.views || 0}</span>
             </div>
             ${adminDeleteBtn}
-        </div>`;
+        </div>
+        ${containsAdultAlcohol(song.text) ? '<span class="age-badge age-badge-18 age-badge-corner">18+</span>' : ''}
+        ${containsAdultSex(song.text) ? '<span class="age-badge age-badge-16 age-badge-corner">16+</span>' : ''}
+        `;
 
         card.addEventListener('click', (e) => {
             if (e.target.closest('.btn-delete-card')) return;
