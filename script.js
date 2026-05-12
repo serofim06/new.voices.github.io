@@ -554,12 +554,12 @@ async function renderSongs() {
         <span class="song-card-author">👤 ${escapeHTML(song.author)}</span>
         <div class="song-card-preview">
             ${escapeHTML(preview)}
-            ${containsAdultAlcohol(song.text) ? '<div class="adult-overlay-18">🔞 18+</div>' : ''}
-            ${containsAdultSex(song.text) ? '<div class="adult-overlay-16">🔞 16+</div>' : ''}
         </div>
         <div class="song-card-footer">
             <div class="stats">
                 <span title="Лайки">❤️ ${song.likes || 0}</span>
+                ${containsAdultAlcohol(song.text) ? '<span class="age-badge age-badge-18">18+</span>' : ''}
+                ${containsAdultSex(song.text) ? '<span class="age-badge age-badge-16">16+</span>' : ''}
                 <span title="Рейтинг">⭐ ${avg}</span>
                 <span title="Просмотры">👁 ${song.views || 0}</span>
             </div>
